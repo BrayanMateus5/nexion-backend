@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nexion.backend.dto.UserRequest;
+import com.nexion.backend.dto.UserResponse;
 import com.nexion.backend.entity.User;
 import com.nexion.backend.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController // responde a requisição do HTTP com JSON
 @RequestMapping("/api/v1/users") // caminho de todos os métodos
@@ -26,24 +30,18 @@ public class UserController {
     }
 
     @PostMapping // Criar
-    public ResponseEntity<User> criar(@RequestBody User user) {
-        User criado = service.criar(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
+    public ResponseEntity<UserResponse> criar(@RequestBody @Valid UserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(request));
     }
 
     @GetMapping // buscar
-    public ResponseEntity<List<User>> listarTodos() {
+    public ResponseEntity<List<UserResponse>> listarTodos() {
         return ResponseEntity.ok(service.listarTodos());
     }
 
     @GetMapping("/{id}") // buscar por ID
-    public ResponseEntity<User> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
-    }
-
-    @PutMapping("/{id}") // atualizar com ID
-    public ResponseEntity<User> atualizar(@PathVariable Long id, @RequestBody User user) {
-        return ResponseEntity.ok(service.atualizar(id, user));
     }
 
     @DeleteMapping("/{id}") // remove o ID

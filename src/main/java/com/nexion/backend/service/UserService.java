@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.nexion.backend.dto.UserRequest;
+import com.nexion.backend.dto.UserResponse;
 import com.nexion.backend.entity.User;
 import com.nexion.backend.repository.UserRepository;
 
@@ -16,29 +18,36 @@ public class UserService {
         this.repository = repository;
     }
 
-    public User criar(User user) {
-        if (repository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email já cadastrado");
+    public UserResponse criar(UserRequest request) {
+        if (repository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("E-mail já cadastrado");
         }
-        return repository.save(user);
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        return toResponse(repository.save(user));
     }
 
-    public List<User> listarTodos() {
-        return repository.findAll();
+    public List<UserResponse> listarTodos() {
+        return repository.findAll().stream().map(this::toResponse).toList(); // percorre e converte em um UserResponse
     }
 
-    public User buscarPorId(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("O usuário não foi encontrado"));
-    }
-
-    public User atualizar(Long id, User dados) {
-        User user = buscarPorId(id);
-        user.setName(dados.getName());
-        user.setEmail(dados.getEmail());
-        return repository.save(user);
+    public UserResponse buscarPorId(Long id) {
+        User user = repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return toResponse(user);
     }
 
     public void remover(Long id) {
         repository.deleteById(id);
+    }
+
+    private UserResponse toResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        response.setCreatedAt(user.getCreatedAt());
+        return response;
     }
 }
