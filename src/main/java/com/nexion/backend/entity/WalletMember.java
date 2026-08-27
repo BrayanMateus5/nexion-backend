@@ -2,6 +2,8 @@ package com.nexion.backend.entity;
 
 import java.time.LocalDateTime;
 
+import com.nexion.backend.enums.WalletRole;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,7 +39,7 @@ public class WalletMember {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Wallet role; // liga e carrega os dados extras
+    private WalletRole role; // liga e carrega os dados extras
 
     @Column(name = "joined_at", updatable = false)
     private LocalDateTime joinedAt;
