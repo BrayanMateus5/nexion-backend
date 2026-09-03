@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+
 import com.nexion.backend.dto.AuthResponse;
 import com.nexion.backend.dto.LoginRequest;
 import com.nexion.backend.dto.UserRequest;
@@ -35,6 +36,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         String token = jwtService.gerarToken(request.getEmail());
-        return new AuthResponse(token, "Bearer", expiration / 1000);
+        UserResponse user = userService.buscarPorEmail(request.getEmail());
+        return new AuthResponse(token, "Bearer", expiration / 1000, user);
     }
 }
