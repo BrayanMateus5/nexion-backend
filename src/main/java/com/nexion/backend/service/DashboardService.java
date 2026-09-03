@@ -29,7 +29,7 @@ public class DashboardService {
         response.setTotalIncome(totalIncome);
         response.setTotalExpense(totalExpense);
         response.setBalance(totalIncome.subtract(totalExpense));
-        response.setTransactionCount(transactions.size());
+        response.setTransactionCount((long) transactions.size());
         return response;
     }
 
