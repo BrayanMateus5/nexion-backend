@@ -8,6 +8,7 @@ import com.nexion.backend.dto.CategoryRequest;
 import com.nexion.backend.dto.CategoryResponse;
 import com.nexion.backend.entity.Category;
 import com.nexion.backend.entity.User;
+import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.CategoryRepository;
 import com.nexion.backend.repository.UserRepository;
 
@@ -24,7 +25,7 @@ public class CategoryService {
 
     public CategoryResponse criar(CategoryRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         Category category = new Category();
         category.setUser(user);
@@ -42,7 +43,8 @@ public class CategoryService {
     }
 
     public CategoryResponse buscarPorId(Long id) {
-        Category category = repository.findById(id).orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+        Category category = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
         return toResponse(category);
     }
 

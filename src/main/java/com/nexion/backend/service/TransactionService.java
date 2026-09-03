@@ -10,6 +10,7 @@ import com.nexion.backend.entity.Category;
 import com.nexion.backend.entity.Transaction;
 import com.nexion.backend.entity.User;
 import com.nexion.backend.entity.Wallet;
+import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.CategoryRepository;
 import com.nexion.backend.repository.TransactionRepository;
 import com.nexion.backend.repository.UserRepository;
@@ -33,9 +34,9 @@ public class TransactionService {
 
     public TransactionResponse criar(Long walletId, TransactionRequest request) {
         Wallet wallet = walletRepository.findById(walletId)
-                .orElseThrow(() -> new RuntimeException("Carteira não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
         User createdBy = userRepository.findById(request.getCreatedById())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         Transaction transaction = new Transaction();
         transaction.setWallet(wallet);
@@ -74,7 +75,7 @@ public class TransactionService {
     private void aplicarCategoria(Transaction transaction, Long categoryId) {
         if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
             transaction.setCategory(category);
         } else {
             transaction.setCategory(null);
@@ -83,7 +84,7 @@ public class TransactionService {
 
     private Transaction buscarEntidade(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transação não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Transação não encontrada"));
     }
 
     private TransactionResponse toResponse(Transaction t) {

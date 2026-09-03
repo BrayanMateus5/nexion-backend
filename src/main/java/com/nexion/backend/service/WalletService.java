@@ -13,6 +13,7 @@ import com.nexion.backend.entity.User;
 import com.nexion.backend.entity.Wallet;
 import com.nexion.backend.entity.WalletMember;
 import com.nexion.backend.enums.WalletRole;
+import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.UserRepository;
 import com.nexion.backend.repository.WalletMemberRepository;
 import com.nexion.backend.repository.WalletRepository;
@@ -36,7 +37,7 @@ public class WalletService {
     @Transactional
     public WalletResponse criar(WalletRequest request) {
         User owner = userRepository.findById(request.getOwnerId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         // para criar a carteira oficialmente
         Wallet wallet = new Wallet();
@@ -75,10 +76,10 @@ public class WalletService {
     public MemberResponse adicionarMembro(Long walletId, AddMemberRequest request) {
         Wallet wallet = buscarEntidade(walletId);
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         if (memberRepository.existsByWalletIdAndUserId(walletId, user.getId())) {
-            throw new RuntimeException("Usuário ja é membro");
+            throw new ResourceNotFoundException("Usuário ja é membro");
         }
         WalletMember membro = new WalletMember();
         membro.setWallet(wallet);
@@ -89,19 +90,19 @@ public class WalletService {
 
     public MemberResponse alterarPapel(Long walletId, Long userId, UpdateMemberRoleRequest request) {
         WalletMember membro = memberRepository.findByWalletIdAndUserId(walletId, userId)
-                .orElseThrow(() -> new RuntimeException("Membro não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado"));
         membro.setRole(request.getRole());
         return toMemberResponse(memberRepository.save(membro));
     }
 
     public void removerMembro(Long walletId, Long userId) {
         WalletMember membro = memberRepository.findByWalletIdAndUserId(walletId, userId)
-                .orElseThrow(() -> new RuntimeException("Nenhum membro encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Nenhum membro encontrado"));
         memberRepository.delete(membro);
     }
 
     private Wallet buscarEntidade(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Carteira não encontrada"));
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
     }
 
     private WalletResponse toResponse(Wallet wallet) {
