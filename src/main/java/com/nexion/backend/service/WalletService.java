@@ -74,7 +74,7 @@ public class WalletService {
 
     public MemberResponse adicionarMembro(Long walletId, AddMemberRequest request) {
         Wallet wallet = buscarEntidade(walletId);
-        User user = user.RepositfindByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         if (memberRepository.existsByWalletIdAndUserId(walletId, user.getId())) {

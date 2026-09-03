@@ -6,12 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nexion.backend.dto.AddMemberRequest;
+import com.nexion.backend.dto.MemberResponse;
+import com.nexion.backend.dto.UpdateMemberRoleRequest;
 import com.nexion.backend.dto.WalletRequest;
 import com.nexion.backend.dto.WalletResponse;
 import com.nexion.backend.service.WalletService;
@@ -25,7 +29,6 @@ public class WalletController {
     private final WalletService service;
 
     public WalletController(WalletService service) {
-
         this.service = service;
     }
 
@@ -47,6 +50,29 @@ public class WalletController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         service.remover(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/members")
+    public ResponseEntity<List<MemberResponse>> listarMembros(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarMembros(id));
+    }
+
+    @PostMapping("/{id}/members")
+    public ResponseEntity<MemberResponse> adicionarMembro(@PathVariable Long id,
+            @RequestBody @Valid AddMemberRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.adicionarMembro(id, request));
+    }
+
+    @PatchMapping("/{id}/members/{userId}")
+    public ResponseEntity<MemberResponse> alterarPapel(@PathVariable Long id, @PathVariable Long userId,
+            @RequestBody @Valid UpdateMemberRoleRequest request) {
+        return ResponseEntity.ok(service.alterarPapel(id, userId, request));
+    }
+
+    @DeleteMapping("/{id}/members/{userId}")
+    public ResponseEntity<Void> removerMembro(@PathVariable Long id, @PathVariable Long userId) {
+        service.removerMembro(id, userId);
         return ResponseEntity.noContent().build();
     }
 }
