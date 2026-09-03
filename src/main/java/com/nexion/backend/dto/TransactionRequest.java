@@ -19,6 +19,7 @@ public class TransactionRequest {
     @NotNull(message = "O valor é obrigatório")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
     private BigDecimal amount;
+    // O valor correto do dinheiro na saída
 
     private String description;
 

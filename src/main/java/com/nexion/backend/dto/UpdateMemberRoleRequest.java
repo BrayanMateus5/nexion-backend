@@ -11,3 +11,5 @@ public class UpdateMemberRoleRequest {
     @NotNull(message = "O papel é obrigatório")
     private WalletRole role;
 }
+
+// é uma questão de papel do usuário

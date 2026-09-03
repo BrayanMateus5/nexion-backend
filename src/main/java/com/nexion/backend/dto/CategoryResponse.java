@@ -11,5 +11,6 @@ public class CategoryResponse {
     private TransactionType type;
     private String color;
     private String icon;
+    // cores e icones usados no front
     private Long userId;
 }

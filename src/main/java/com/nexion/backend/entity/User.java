@@ -1,10 +1,16 @@
 package com.nexion.backend.entity;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Table(name = "users")
@@ -32,12 +38,15 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Roda automaticamente antes de salvar na primeira vez
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        // seta e atualiza a data e hora que foi criado
     }
 
+    // roda antes de atualizar
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

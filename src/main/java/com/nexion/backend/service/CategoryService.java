@@ -1,6 +1,7 @@
 package com.nexion.backend.service;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.nexion.backend.dto.CategoryRequest;
@@ -31,6 +32,7 @@ public class CategoryService {
         category.setType(request.getType());
         category.setColor(request.getColor());
         category.setIcon(request.getIcon());
+        // cores e icones usados no front
 
         return toResponse(repository.save(category));
     }

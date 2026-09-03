@@ -11,4 +11,5 @@ public class WalletResponse {
     private String description;
     private Long ownerId;
     private LocalDateTime createdAt;
+    // seta a data e hora que foi criado
 }

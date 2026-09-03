@@ -46,6 +46,7 @@ public class Transaction {
 
     @Column(nullable = false)
     private BigDecimal amount;
+    // O valor correto do dinheiro na saída
 
     private String description;
 
@@ -55,8 +56,10 @@ public class Transaction {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // Roda automaticamente antes de salvar na primeira vez
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        // seta a data e hora que foi criado
     }
 }

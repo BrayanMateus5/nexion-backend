@@ -34,9 +34,11 @@ public class Wallet {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // Roda automaticamente antes de salvar na primeira vez
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        // seta a data e hora que foi criado
     }
 
 }

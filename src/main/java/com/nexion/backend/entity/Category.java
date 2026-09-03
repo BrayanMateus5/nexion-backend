@@ -36,4 +36,5 @@ public class Category {
 
     private String color;
     private String icon;
+    // cores e icones usados no front
 }

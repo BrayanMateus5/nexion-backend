@@ -15,6 +15,7 @@ public class TransactionResponse {
     private Long createdById;
     private TransactionType type;
     private BigDecimal amount;
+    // O valor correto do dinheiro na saída
     private String description;
     private LocalDate date;
 }
