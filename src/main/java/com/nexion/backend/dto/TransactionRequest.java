@@ -29,6 +29,4 @@ public class TransactionRequest {
 
     private Long categoryId;
 
-    @NotNull(message = "O autor é obrigatório")
-    private Long createdById;
 }

@@ -11,6 +11,7 @@ import com.nexion.backend.entity.User;
 import com.nexion.backend.entity.Wallet;
 import com.nexion.backend.entity.WalletMember;
 import com.nexion.backend.enums.WalletRole;
+import com.nexion.backend.exception.BusinessException;
 import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.UserRepository;
 import com.nexion.backend.repository.WalletMemberRepository;
@@ -85,7 +86,7 @@ public class WalletService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         if (memberRepository.existsByWalletIdAndUserId(walletId, user.getId())) {
-            throw new ResourceNotFoundException("Usuário ja é membro");
+            throw new BusinessException("Usuário ja é membro");
         }
         WalletMember membro = new WalletMember();
         membro.setWallet(wallet);

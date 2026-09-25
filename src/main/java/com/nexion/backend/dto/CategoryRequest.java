@@ -9,9 +9,6 @@ import lombok.Data;
 @Data
 public class CategoryRequest {
 
-    @NotNull(message = "O usuário é obrigatório")
-    private Long userId;
-
     @NotBlank(message = "O nome é obrigatório")
     private String name;
 

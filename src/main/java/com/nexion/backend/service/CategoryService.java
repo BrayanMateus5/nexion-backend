@@ -1,31 +1,27 @@
 package com.nexion.backend.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import com.nexion.backend.dto.CategoryRequest;
 import com.nexion.backend.dto.CategoryResponse;
 import com.nexion.backend.entity.Category;
 import com.nexion.backend.entity.User;
 import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.CategoryRepository;
-import com.nexion.backend.repository.UserRepository;
 
 @Service
 public class CategoryService {
 
     private final CategoryRepository repository;
-    private final UserRepository userRepository;
+    private final UserLogService userLogService;
 
-    public CategoryService(CategoryRepository repository, UserRepository userRepository) {
+    public CategoryService(CategoryRepository repository, UserLogService userLogService) {
         this.repository = repository;
-        this.userRepository = userRepository;
+        this.userLogService = userLogService;
     }
 
     public CategoryResponse criar(CategoryRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        User user = userLogService.get();
 
         Category category = new Category();
         category.setUser(user);
@@ -39,17 +35,20 @@ public class CategoryService {
     }
 
     public List<CategoryResponse> listarTodos() {
-        return repository.findAll().stream().map(this::toResponse).toList();
+        Long userId = userLogService.get().getId();
+        return repository.findByUserId(userId).stream().map(this::toResponse).toList();
     }
 
     public CategoryResponse buscarPorId(Long id) {
-        Category category = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+        Category category = buscarEntidade(id);
+        verificarDono(category);
         return toResponse(category);
     }
 
     public void remover(Long id) {
-        repository.deleteById(id);
+        Category category = buscarEntidade(id);
+        verificarDono(category);
+        repository.delete(category);
     }
 
     private CategoryResponse toResponse(Category category) {
@@ -61,6 +60,18 @@ public class CategoryService {
         response.setIcon(category.getIcon());
         response.setUserId(category.getUser().getId());
         return response;
+    }
+
+    private Category buscarEntidade(Long id) {
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
+    }
+
+    private void verificarDono(Category category) {
+        Long userId = userLogService.get().getId();
+
+        if (!category.getUser().getId().equals(userId)) {
+            throw new ResourceNotFoundException("Categoria não encontrada");
+        }
     }
 
 }
