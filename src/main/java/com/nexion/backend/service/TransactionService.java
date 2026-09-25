@@ -13,7 +13,7 @@ import com.nexion.backend.entity.Wallet;
 import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.CategoryRepository;
 import com.nexion.backend.repository.TransactionRepository;
-import com.nexion.backend.repository.UserRepository;
+import com.nexion.backend.repository.WalletMemberRepository;
 import com.nexion.backend.repository.WalletRepository;
 
 @Service
@@ -22,21 +22,24 @@ public class TransactionService {
     private final TransactionRepository repository;
     private final WalletRepository walletRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final WalletMemberRepository walletMemberRepository;
+    private final UserLogService userLogService;
 
     public TransactionService(TransactionRepository repository, WalletRepository walletRepository,
-            CategoryRepository categoryRepository, UserRepository userRepository) {
+            CategoryRepository categoryRepository,
+            WalletMemberRepository walletMemberRepository, UserLogService userLogService) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
+        this.walletMemberRepository = walletMemberRepository;
+        this.userLogService = userLogService;
     }
 
     public TransactionResponse criar(Long walletId, TransactionRequest request) {
+        verificarMembro(walletId);
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
-        User createdBy = userRepository.findById(request.getCreatedById())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        User createdBy = userLogService.get();
 
         Transaction transaction = new Transaction();
         transaction.setWallet(wallet);
@@ -51,15 +54,19 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> listarPorCateira(Long walletId) {
+        verificarMembro(walletId);
         return repository.findByWalletId(walletId).stream().map(this::toResponse).toList();
     }
 
     public TransactionResponse buscarPorId(Long id) {
-        return toResponse(buscarEntidade(id));
+        Transaction transaction = buscarEntidade(id);
+        verificarMembro(transaction.getWallet().getId());
+        return toResponse(transaction);
     }
 
     public TransactionResponse atualizar(Long id, TransactionRequest request) {
         Transaction transaction = buscarEntidade(id);
+        verificarMembro(transaction.getWallet().getId());
         transaction.setType(request.getType());
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
@@ -69,7 +76,9 @@ public class TransactionService {
     }
 
     public void remover(Long id) {
-        repository.deleteById(id);
+        Transaction transaction = buscarEntidade(id);
+        verificarMembro(transaction.getWallet().getId());
+        repository.delete(transaction);
     }
 
     private void aplicarCategoria(Transaction transaction, Long categoryId) {
@@ -98,5 +107,13 @@ public class TransactionService {
         response.setDescription(t.getDescription());
         response.setDate(t.getDate());
         return response;
+    }
+
+    private void verificarMembro(Long walletId) {
+        Long userId = userLogService.get().getId();
+        if (!walletMemberRepository.existsByWalletIdAndUserId(walletId, userId)) {
+            throw new ResourceNotFoundException("A carteira não foi encontrada");
+
+        }
     }
 }
