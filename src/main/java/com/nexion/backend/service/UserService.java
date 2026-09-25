@@ -16,10 +16,20 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final UserLogService userLogService;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, UserLogService userLogService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.userLogService = userLogService;
+    }
+
+    public UserResponse meuPerfil() {
+        return toResponse(userLogService.get());
+    }
+
+    public void removerMinhaConta() {
+        repository.deleteById(userLogService.get().getId());
     }
 
     public UserResponse criar(UserRequest request) {
@@ -31,25 +41,13 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         return toResponse(repository.save(user));
-    }
 
-    public List<UserResponse> listarTodos() {
-        return repository.findAll().stream().map(this::toResponse).toList(); // percorre e converte em um UserResponse
-    }
-
-    public UserResponse buscarPorId(Long id) {
-        User user = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
-        return toResponse(user);
     }
 
     public UserResponse buscarPorEmail(String email) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         return toResponse(user);
-    }
-
-    public void remover(Long id) {
-        repository.deleteById(id);
     }
 
     private UserResponse toResponse(User user) {
