@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.nexion.backend.dto.UserRequest;
 import com.nexion.backend.dto.UserResponse;
 import com.nexion.backend.entity.User;
+import com.nexion.backend.exception.ConflictException;
 import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.UserRepository;
 
@@ -32,7 +33,7 @@ public class UserService {
 
     public UserResponse criar(UserRequest request) {
         if (repository.existsByEmail(request.getEmail())) {
-            throw new ResourceNotFoundException("E-mail já cadastrado");
+            throw new ConflictException("E-mail já cadastrado");
         }
         User user = new User();
         user.setName(request.getName());

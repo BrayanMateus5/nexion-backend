@@ -19,7 +19,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErroResponse> handleBusiness(BusinessException ex) {
-        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErroResponse> handleConflito(ConflictException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
