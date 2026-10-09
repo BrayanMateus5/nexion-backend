@@ -22,21 +22,20 @@ public class TransactionService {
     private final TransactionRepository repository;
     private final WalletRepository walletRepository;
     private final CategoryRepository categoryRepository;
-    private final WalletMemberRepository walletMemberRepository;
     private final UserLogService userLogService;
+    private final WalletAccessService walletAccessService;
 
     public TransactionService(TransactionRepository repository, WalletRepository walletRepository,
-            CategoryRepository categoryRepository,
-            WalletMemberRepository walletMemberRepository, UserLogService userLogService) {
+            CategoryRepository categoryRepository, UserLogService userLogService, WalletAccessService walletAccessService) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.categoryRepository = categoryRepository;
-        this.walletMemberRepository = walletMemberRepository;
         this.userLogService = userLogService;
+        this.walletAccessService = walletAccessService;
     }
 
     public TransactionResponse criar(Long walletId, TransactionRequest request) {
-        verificarMembro(walletId);
+        walletAccessService.verificarMembro(walletId);
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
         User createdBy = userLogService.get();
@@ -54,19 +53,19 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> listarPorCateira(Long walletId) {
-        verificarMembro(walletId);
+        walletAccessService.verificarMembro(walletId);
         return repository.findByWalletId(walletId).stream().map(this::toResponse).toList();
     }
 
     public TransactionResponse buscarPorId(Long id) {
         Transaction transaction = buscarEntidade(id);
-        verificarMembro(transaction.getWallet().getId());
+        walletAccessService.verificarMembro(transaction.getWallet().getId());
         return toResponse(transaction);
     }
 
     public TransactionResponse atualizar(Long id, TransactionRequest request) {
         Transaction transaction = buscarEntidade(id);
-        verificarMembro(transaction.getWallet().getId());
+        walletAccessService.verificarMembro(transaction.getWallet().getId());
         transaction.setType(request.getType());
         transaction.setAmount(request.getAmount());
         transaction.setDescription(request.getDescription());
@@ -77,7 +76,7 @@ public class TransactionService {
 
     public void remover(Long id) {
         Transaction transaction = buscarEntidade(id);
-        verificarMembro(transaction.getWallet().getId());
+        walletAccessService.verificarMembro(transaction.getWallet().getId());
         repository.delete(transaction);
     }
 
@@ -107,13 +106,6 @@ public class TransactionService {
         response.setDescription(t.getDescription());
         response.setDate(t.getDate());
         return response;
-    }
-
-    private void verificarMembro(Long walletId) {
-        Long userId = userLogService.get().getId();
-        if (!walletMemberRepository.existsByWalletIdAndUserId(walletId, userId)) {
-            throw new ResourceNotFoundException("A carteira não foi encontrada");
 
         }
     }
-}

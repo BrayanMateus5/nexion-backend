@@ -14,12 +14,15 @@ import com.nexion.backend.repository.TransactionRepository;
 public class DashboardService {
 
     private final TransactionRepository transactionRepository;
+    private final WalletAccessService walletAccessService;
 
-    public DashboardService(TransactionRepository transactionRepository) {
+    public DashboardService(TransactionRepository transactionRepository, WalletAccessService walletAccessService) {
         this.transactionRepository = transactionRepository;
+        this.walletAccessService = walletAccessService;
     }
 
     public WalletSummaryResponse resumo(Long walletId) {
+        walletAccessService.verificarMembro(walletId);
         List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
 
         BigDecimal totalIncome = somarPorTipo(transactions, TransactionType.INCOME);

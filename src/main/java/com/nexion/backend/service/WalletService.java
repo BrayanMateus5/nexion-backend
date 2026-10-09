@@ -25,13 +25,15 @@ public class WalletService {
     private final WalletMemberRepository memberRepository;
     private final UserRepository userRepository;
     private final UserLogService userLogService;
+    private final WalletAccessService walletAccessService;
 
     public WalletService(WalletRepository repository, WalletMemberRepository memberRepository,
-            UserRepository userRepository, UserLogService userLogService) {
+            UserRepository userRepository, UserLogService userLogService, WalletAccessService walletAccessService) {
         this.repository = repository;
         this.memberRepository = memberRepository;
         this.userRepository = userRepository;
         this.userLogService = userLogService;
+        this.walletAccessService = walletAccessService;
     }
 
     @Transactional
@@ -63,25 +65,24 @@ public class WalletService {
     }
 
     public WalletResponse buscarPorId(Long id) {
-        verificarMembro(id);
+        walletAccessService.verificarMembro(id);
         return toResponse(buscarEntidade(id));
     }
 
     public void remover(Long id) {
-        Wallet wallet = buscarEntidade(id);
-        verificarDono(wallet);
+        walletAccessService.verificarDono(id);
         repository.deleteById(id);
     }
 
     // Dos membros
     public List<MemberResponse> listarMembros(Long walletId) {
-        verificarMembro(walletId);
+        walletAccessService.verificarMembro(walletId);
         return memberRepository.findByWalletId(walletId).stream().map(this::toMemberResponse).toList();
     }
 
     public MemberResponse adicionarMembro(Long walletId, AddMemberRequest request) {
         Wallet wallet = buscarEntidade(walletId);
-        verificarDono(wallet);
+        walletAccessService.verificarDono(walletId);
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
@@ -96,7 +97,7 @@ public class WalletService {
     }
 
     public MemberResponse alterarPapel(Long walletId, Long userId, UpdateMemberRoleRequest request) {
-        verificarDono(buscarEntidade(walletId));
+        walletAccessService.verificarDono(walletId);
 
         WalletMember membro = memberRepository.findByWalletIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado"));
@@ -105,7 +106,7 @@ public class WalletService {
     }
 
     public void removerMembro(Long walletId, Long userId) {
-        verificarDono(buscarEntidade(walletId));
+        walletAccessService.verificarDono(walletId);
         WalletMember membro = memberRepository.findByWalletIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Nenhum membro encontrado"));
         memberRepository.delete(membro);
@@ -132,21 +133,5 @@ public class WalletService {
         response.setEmail(member.getUser().getEmail());
         response.setRole(member.getRole());
         return response;
-    }
-
-    private void verificarMembro(Long walletId) {
-        Long userId = userLogService.get().getId();
-
-        if (!memberRepository.existsByWalletIdAndUserId(walletId, userId)) {
-            throw new ResourceNotFoundException("A carteira não foi encontrada");
         }
-    }
-
-    private void verificarDono(Wallet wallet) {
-        Long userId = userLogService.get().getId();
-        if (!wallet.getOwner().getId().equals(userId)) {
-            throw new ResourceNotFoundException("A carteira não foi encontrada");
-
-        }
-    }
 }
