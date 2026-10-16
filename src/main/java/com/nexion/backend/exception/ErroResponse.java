@@ -2,11 +2,9 @@ package com.nexion.backend.exception;
 
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class ErroResponse {
 
     private LocalDateTime timestamp;
@@ -14,4 +12,10 @@ public class ErroResponse {
     private String error;
     private String message;
 
+public ErroResponse(LocalDateTime timestamp, int status, String error, String message) {
+    this.timestamp = timestamp;
+    this.status = status;
+    this.message = message;
+    this.error = error;
+    }
 }
