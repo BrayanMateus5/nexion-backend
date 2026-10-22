@@ -2,7 +2,8 @@ package com.nexion.backend.service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,15 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private static final Logger log = 
+    LoggerFactory.getLogger(PasswordResetService.class);
 
-    public PasswordResetService( UserRepository userRepository, PasswordResetTokenRepository resetTokenRepository, PasswordEncoder passwordEncoder) {
+    public PasswordResetService( UserRepository userRepository, PasswordResetTokenRepository resetTokenRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.resetTokenRepository = resetTokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     public void solicitar(ForgotPasswordRequest request) {
@@ -34,8 +39,11 @@ public class PasswordResetService {
             prt.setUser(user);
             prt.setExpiresAt(LocalDateTime.now().plusMinutes(30));
             resetTokenRepository.save(prt);
-
-            System.out.println(">>> TOKEN PARA RESET: " + prt.getToken());
+            try {
+            emailService.enviarResetSenha(user.getEmail(), prt.getToken());
+            }catch (Exception e) {
+                log.error("Falha ao enviar o e-mail de redefinição para o usuário id={}", user.getId(), e);
+            }
         });
     }
     public void redefinir(ResetPasswordRequest request) {
