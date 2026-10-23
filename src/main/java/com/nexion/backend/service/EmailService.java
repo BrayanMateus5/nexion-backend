@@ -1,34 +1,53 @@
 package com.nexion.backend.service;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service 
 public class EmailService {
     
-    private final JavaMailSender mailSender;
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${spring.mail.username}")
+    private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
+
+    @Value("${spring.mail.username}")        
     private String remetente;
 
-    @Value("${app.frontend.url}")
+    @Value("${app.frontend.url}")            
     private String frontendUrl;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
     }
 
     public void enviarResetSenha(String destinatario, String token) {
-        String link = frontendUrl + "/redefinir-senha/" + token;
+        Context contexto = new Context();
+        contexto.setVariable("link", frontendUrl + "/redefinir-senha/" + token);
 
-        SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setFrom(remetente);
-        mensagem.setTo(destinatario);
-        mensagem.setSubject("Nexion - Redefinição de senha");
-        mensagem.setText("Voce solicitou a redefinição da sua senha. \n\n"+ "Acesse este link abaixo para criar uma nova senha: \n" + link + "\n\n" + "Este link expira em 30 minutos. \n" +
-        "Caso não tenha feito a solicitação, ignore este e-mail..");
+        String html = templateEngine.process("email-reset-senha", contexto);
 
-    mailSender.send(mensagem);
+        try{
+            MimeMessage mensagem = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+        helper.setFrom(remetente);
+        helper.setTo(destinatario);
+        helper.setSubject("Nexion - Redefinição de senha");
+        helper.setText(html, true);
+        mailSender.send(mensagem);
+        }catch (MessagingException e) {
+            log.error("Falhar na montagem do e-mail de redefinição", e);
+            throw new IllegalStateException("Falha ao enviar o e-mail", e);
+        }
     }
 }

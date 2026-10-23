@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="margin:0;background-color:#f4f4f7;">
+  <div style="padding:40px 20px;font-family:Arial,Helvetica,sans-serif;">
+    <div style="max-width:480px;margin:0 auto;background-color:#ffffff;
+                border-radius:12px;overflow:hidden;
+                box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+      <!-- faixa da marca -->
+      <div style="background:linear-gradient(135deg,#3b82f6,#06b6d4);padding:24px 32px;">
+        <h1 style="color:#ffffff;font-size:26px;margin:0;letter-spacing:1px;">Nexion</h1>
+        <p style="color:#e0f2fe;font-size:13px;margin:4px 0 0;">Gestão financeira</p>
+      </div>
+
+      <!-- conteúdo -->
+      <div style="padding:32px;">
+        <h2 style="color:#1a1a1a;font-size:20px;margin:0 0 16px;">Redefinição de senha</h2>
+
+        <p style="color:#4a4a4a;font-size:15px;line-height:1.6;margin:0 0 28px;">
+          Você solicitou a redefinição da sua senha. Clique no botão abaixo para criar uma nova:
+        </p>
+
+        <a th:href="${link}"
+           style="display:inline-block;background-color:#0ea5e9;color:#ffffff;
+                  text-decoration:none;padding:14px 32px;border-radius:8px;
+                  font-weight:bold;font-size:15px;">Criar nova senha</a>
+
+        <p style="color:#888888;font-size:13px;line-height:1.6;margin:28px 0 0;">
+          Este link expira em <strong style="color:#4a4a4a;">30 minutos</strong>.<br>
+          Se você não fez esta solicitação, ignore este e-mail.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
