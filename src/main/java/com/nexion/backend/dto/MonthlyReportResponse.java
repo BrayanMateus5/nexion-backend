@@ -1,12 +1,13 @@
 package com.nexion.backend.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import lombok.Data;
 
 @Data 
 public class MonthlyReportResponse {
     
-    @NotBlank
-    String month;    
+    private String month;
+    private BigDecimal income;
+    private BigDecimal expense;
     
 }
