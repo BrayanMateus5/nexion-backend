@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Service 
+@Service
 public class EmailService {
-    
+
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Value("${spring.mail.username}")        
+    @Value("${spring.mail.username}")
     private String remetente;
 
-    @Value("${app.frontend.url}")            
+    @Value("${app.frontend.url}")
     private String frontendUrl;
 
     public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
@@ -37,15 +37,15 @@ public class EmailService {
 
         String html = templateEngine.process("email-reset-senha", contexto);
 
-        try{
+        try {
             MimeMessage mensagem = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
-        helper.setFrom(remetente);
-        helper.setTo(destinatario);
-        helper.setSubject("Nexion - Redefinição de senha");
-        helper.setText(html, true);
-        mailSender.send(mensagem);
-        }catch (MessagingException e) {
+            MimeMessageHelper helper = new MimeMessageHelper(mensagem, true, "UTF-8");
+            helper.setFrom(remetente);
+            helper.setTo(destinatario);
+            helper.setSubject("Nexion - Redefinição de senha");
+            helper.setText(html, true);
+            mailSender.send(mensagem);
+        } catch (MessagingException e) {
             log.error("Falhar na montagem do e-mail de redefinição", e);
             throw new IllegalStateException("Falha ao enviar o e-mail", e);
         }

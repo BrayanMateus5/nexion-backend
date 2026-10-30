@@ -30,11 +30,12 @@ public class DashboardController {
     public ResponseEntity<WalletSummaryResponse> resumo(@PathVariable Long walletId) {
         return ResponseEntity.ok(service.resumo(walletId));
     }
-    
+
     @GetMapping("/reports/monthly")
     public ResponseEntity<List<MonthlyReportResponse>> relatorioMensal(@PathVariable Long walletId) {
         return ResponseEntity.ok(service.relatorioMensal(walletId));
     }
+
     @GetMapping("/insights")
     public ResponseEntity<InsightResponse> insights(@PathVariable Long walletId) {
         return ResponseEntity.ok(insightService.gerar(walletId));

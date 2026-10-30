@@ -133,5 +133,5 @@ public class WalletService {
         response.setEmail(member.getUser().getEmail());
         response.setRole(member.getRole());
         return response;
-        }
+    }
 }

@@ -32,10 +32,11 @@ public class UserService {
     public void removerMinhaConta() {
         repository.deleteById(userLogService.get().getId());
     }
+
     public void alterarSenha(ChangePasswordRequest request) {
         User user = userLogService.get();
 
-        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new BusinessException("A senha atual está incorreta");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

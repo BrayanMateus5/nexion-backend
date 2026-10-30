@@ -26,7 +26,8 @@ public class TransactionService {
     private final WalletAccessService walletAccessService;
 
     public TransactionService(TransactionRepository repository, WalletRepository walletRepository,
-            CategoryRepository categoryRepository, UserLogService userLogService, WalletAccessService walletAccessService) {
+            CategoryRepository categoryRepository, UserLogService userLogService,
+            WalletAccessService walletAccessService) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.categoryRepository = categoryRepository;
@@ -107,5 +108,5 @@ public class TransactionService {
         response.setDate(t.getDate());
         return response;
 
-        }
     }
+}

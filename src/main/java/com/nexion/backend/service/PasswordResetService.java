@@ -15,17 +15,17 @@ import com.nexion.backend.exception.BusinessException;
 import com.nexion.backend.repository.PasswordResetTokenRepository;
 import com.nexion.backend.repository.UserRepository;
 
-@Service 
+@Service
 public class PasswordResetService {
-    
+
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private static final Logger log = 
-    LoggerFactory.getLogger(PasswordResetService.class);
+    private static final Logger log = LoggerFactory.getLogger(PasswordResetService.class);
 
-    public PasswordResetService( UserRepository userRepository, PasswordResetTokenRepository resetTokenRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public PasswordResetService(UserRepository userRepository, PasswordResetTokenRepository resetTokenRepository,
+            PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.resetTokenRepository = resetTokenRepository;
         this.passwordEncoder = passwordEncoder;
@@ -40,28 +40,30 @@ public class PasswordResetService {
             prt.setExpiresAt(LocalDateTime.now().plusMinutes(30));
             resetTokenRepository.save(prt);
             try {
-            emailService.enviarResetSenha(user.getEmail(), prt.getToken());
-            }catch (Exception e) {
+                emailService.enviarResetSenha(user.getEmail(), prt.getToken());
+            } catch (Exception e) {
                 log.error("Falha ao enviar o e-mail de redefinição para o usuário id={}", user.getId(), e);
             }
         });
     }
+
     public void redefinir(ResetPasswordRequest request) {
-    PasswordResetToken prt = resetTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new BusinessException("Token inválido"));
+        PasswordResetToken prt = resetTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new BusinessException("Token inválido"));
 
-    if (prt.isUsed()) {
-        throw new BusinessException("Este token já foi utilizado");
-    }
-    if (prt.getExpiresAt().isBefore(LocalDateTime.now())) {
-        throw new BusinessException("Token expirado");
-    }
+        if (prt.isUsed()) {
+            throw new BusinessException("Este token já foi utilizado");
+        }
+        if (prt.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException("Token expirado");
+        }
 
-    User user = prt.getUser();
-    user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-    userRepository.save(user);
+        User user = prt.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
 
-    prt.setUsed(true);
-    resetTokenRepository.save(prt);
+        prt.setUsed(true);
+        resetTokenRepository.save(prt);
 
     }
 }

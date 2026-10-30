@@ -4,10 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Data 
+@Data
 public class ForgotPasswordRequest {
-    
-    @NotBlank (message = "O email é obrigatório")
+
+    @NotBlank(message = "O email é obrigatório")
     @Email(message = "Deve se seguir o padrão de Email")
     private String email;
 }

@@ -4,13 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Data 
+@Data
 public class ChangePasswordRequest {
-    
+
     @NotBlank(message = "A senha atual é obrigatória")
     private String currentPassword;
 
-    @NotBlank (message = "A nova senha é obrigatória")
+    @NotBlank(message = "A nova senha é obrigatória")
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     private String newPassword;
 }

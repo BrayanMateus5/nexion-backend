@@ -33,4 +33,4 @@ public class AiService {
     }
 }
 
-//Só pra lembrar, aaqui no caso eu criei a parte onde eu envio a pergunta
+// Só pra lembrar, aaqui no caso eu criei a parte onde eu envio a pergunta

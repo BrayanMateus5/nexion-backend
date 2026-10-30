@@ -10,7 +10,7 @@ public class AuthResponse {
     private Long expiresIn;
     private UserResponse user;
 
-    public AuthResponse( String accesToken, String tokenType, Long expiresIn, UserResponse user) {
+    public AuthResponse(String accesToken, String tokenType, Long expiresIn, UserResponse user) {
         this.accessToken = accesToken;
         this.tokenType = tokenType;
         this.expiresIn = expiresIn;

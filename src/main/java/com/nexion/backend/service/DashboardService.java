@@ -45,22 +45,24 @@ public class DashboardService {
         return transactions.stream().filter(t -> t.getType() == type).map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
     public List<MonthlyReportResponse> relatorioMensal(Long walletId) {
         walletAccessService.verificarMembro(walletId);
 
         List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
 
-        /*O groupinBy faz a lista do mês */
-        Map<YearMonth, List<Transaction>> porMes = transactions.stream().collect(Collectors.groupingBy(t -> YearMonth.from(t.getDate())));
-        /*O YearMonth trava só o mês e o ano */
+        /* O groupinBy faz a lista do mês */
+        Map<YearMonth, List<Transaction>> porMes = transactions.stream()
+                .collect(Collectors.groupingBy(t -> YearMonth.from(t.getDate())));
+        /* O YearMonth trava só o mês e o ano */
         return porMes.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> {
-            /*O sorted ordena por mês e ano */
+            /* O sorted ordena por mês e ano */
             MonthlyReportResponse r = new MonthlyReportResponse();
             r.setMonth(entry.getKey().toString());
             r.setIncome(somarPorTipo(entry.getValue(), TransactionType.INCOME));
             r.setExpense(somarPorTipo(entry.getValue(), TransactionType.EXPENSE));
             return r;
         })
-        .toList();
+                .toList();
     }
 }
