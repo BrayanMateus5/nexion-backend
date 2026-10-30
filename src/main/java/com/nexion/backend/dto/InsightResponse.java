@@ -1,5 +1,7 @@
 package com.nexion.backend.dto;
 
-public record InsightResponse(String message) {
+import java.util.List;
+
+public record InsightResponse(List<String> observacoes) {
 
 }

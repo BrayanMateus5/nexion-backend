@@ -1,6 +1,7 @@
 package com.nexion.backend.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,13 +34,19 @@ public class InsightService {
         List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
 
         if (transactions.isEmpty()) {
-            return new InsightResponse("Cadastre algumas transações para receber a análise dos seus gastos.");
+            return new InsightResponse(List.of("Cadastre algumas transações para receber a análise dos seus gastos."));
         }
         try {
-            return new InsightResponse(aiService.perguntar(montarPrompt(transactions)));
+            String texto = aiService.perguntar(montarPrompt(transactions));
+            List<String> observacoes = Arrays.stream(texto.split("\n")).map(String::trim)
+                    .filter(linha -> !linha.isEmpty()).map(linha -> linha.startsWith("- ") ? linha.substring(2) : linha)
+                    .toList();
+
+            return new InsightResponse(observacoes);
+
         } catch (Exception e) {
             log.error("Falha ao gerar os insights para a carteira id={}", walletId, e);
-            return new InsightResponse("Não foi possível gerar a análise no momento..");
+            return new InsightResponse(List.of("Não foi possível gerar a análise no momento.."));
 
         }
     }
@@ -56,19 +63,20 @@ public class InsightService {
                 .collect(Collectors.joining("\n"));
 
         return """
-                Você é um assistente financeiro pessoal. Analise as transações abaixo \
-                e escreva uma análise curta em português do Brasil, com no máximo 4 frases.
-                Destaque o padrão de gastos, a maior despesa e uma sugestão prática.
-                Escreva em texto corrido, sem Markdown, sem listas e títulos.
+                Você é um assistente financeiro pessoal. Analise as transações abaixo.
+                Escreva exatamente 3 observações, uma por linha, sem numerar e sem marcadores.
+                Cada observação deve ter no máximo 20 palavras.
+                A primeira sobre a maior despesa, a segunda sobre o padrão de gastos, a terceira com uma sugestão prática.
                 Use sempre os valores em algarismos, no formato R$ 1.234,56.
-                
+
                 Receita total: R$ %s
                 Despesa total: R$ %s
                 Saldo do período: R$ %s
 
                 Transações:
                 %s
-                """.formatted(receitas, despesas, saldo, lista);
+                """
+                .formatted(receitas, despesas, saldo, lista);
 
     }
 
