@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -12,13 +13,20 @@ import com.nexion.backend.dto.GeminiResponse;
 @Service
 public class AiService {
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient;
 
     @Value("${gemini.api.url}")
     private String apiUrl;
 
     @Value("${gemini.api.key}")
     private String apiKey;
+
+    public AiService() {
+        SimpleClientHttpRequestFactory fabrica = new SimpleClientHttpRequestFactory();
+        fabrica.setConnectTimeout(5000); // tempo pra conexão com o Gem
+        fabrica.setReadTimeout(30000); // tempo pra receber a resposta do Gem
+        this.restClient = RestClient.builder().requestFactory(fabrica).build();
+    }
 
     public String perguntar(String prompt) {
         Map<String, Object> corpo = Map.of("contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));

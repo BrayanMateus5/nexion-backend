@@ -1,5 +1,6 @@
 package com.nexion.backend.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,10 @@ public class InsightService {
     }
 
     private String montarPrompt(List<Transaction> transactions) {
+        BigDecimal receitas = somar(transactions, TransactionType.INCOME);
+        BigDecimal despesas = somar(transactions, TransactionType.EXPENSE);
+        BigDecimal saldo = receitas.subtract(despesas);
+
         String lista = transactions.stream()
                 .map(t -> "- %s | %s | R$ %s | %s".formatted(t.getDate(),
                         t.getType() == TransactionType.INCOME ? "receitas" : "despesas", t.getAmount(),
@@ -55,10 +60,21 @@ public class InsightService {
                 e escreva uma análise curta em português do Brasil, com no máximo 4 frases.
                 Destaque o padrão de gastos, a maior despesa e uma sugestão prática.
                 Escreva em texto corrido, sem Markdown, sem listas e títulos.
+                Use sempre os valores em algarismos, no formato R$ 1.234,56.
+                
+                Receita total: R$ %s
+                Despesa total: R$ %s
+                Saldo do período: R$ %s
 
                 Transações:
                 %s
-                """.formatted(lista);
+                """.formatted(receitas, despesas, saldo, lista);
 
+    }
+
+    // Aqui faz a soma, começando do 0 e vai aumentando
+    private BigDecimal somar(List<Transaction> lista, TransactionType tipo) {
+        return lista.stream().filter(t -> t.getType() == tipo).map(Transaction::getAmount).reduce(BigDecimal.ZERO,
+                BigDecimal::add);
     }
 }
