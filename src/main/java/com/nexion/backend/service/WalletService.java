@@ -44,7 +44,7 @@ public class WalletService {
         Wallet wallet = new Wallet();
         wallet.setOwner(owner);
         wallet.setName(request.getName());
-        wallet.setDescripton(request.getDescription());
+        wallet.setDescription(request.getDescription());
         Wallet salva = repository.save(wallet);
 
         // adiciona como owner automáticamente
@@ -120,7 +120,7 @@ public class WalletService {
         WalletResponse response = new WalletResponse();
         response.setId(wallet.getId());
         response.setName(wallet.getName());
-        response.setDescription(wallet.getDescripton());
+        response.setDescription(wallet.getDescription());
         response.setOwnerId(wallet.getOwner().getId());
         response.setCreatedAt(wallet.getCreatedAt());
         return response;

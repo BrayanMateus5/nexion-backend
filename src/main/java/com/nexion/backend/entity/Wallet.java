@@ -29,7 +29,7 @@ public class Wallet {
     @Column(nullable = false)
     private String name;
 
-    private String descripton;
+    private String description;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

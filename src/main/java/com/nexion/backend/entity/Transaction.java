@@ -37,7 +37,7 @@ public class Transaction {
     private Category category;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "creates_by")
+    @JoinColumn(name = "created_by")
     private User createdBy;
 
     @Enumerated(EnumType.STRING)
