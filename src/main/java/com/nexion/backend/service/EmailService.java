@@ -20,7 +20,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Value("${spring.mail.username}")
+    @Value("${app.mail.from}")
     private String remetente;
 
     @Value("${app.frontend.url}")
