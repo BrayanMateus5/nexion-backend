@@ -13,4 +13,8 @@ public class LoginRequest {
 
     @NotBlank
     private String password;
+
+    public void setEmail(String email) {
+        this.email = (email == null) ? null : email.trim().toLowerCase();
+    }
 }

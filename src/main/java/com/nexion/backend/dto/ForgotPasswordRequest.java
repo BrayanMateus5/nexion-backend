@@ -10,4 +10,8 @@ public class ForgotPasswordRequest {
     @NotBlank(message = "O email é obrigatório")
     @Email(message = "Deve se seguir o padrão de Email")
     private String email;
+
+    public void setEmail(String email) {
+        this.email = (email == null) ? null : email.trim().toLowerCase();
+    }
 }

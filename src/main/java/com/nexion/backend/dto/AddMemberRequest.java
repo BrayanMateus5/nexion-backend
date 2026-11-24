@@ -15,4 +15,8 @@ public class AddMemberRequest {
 
     @NotNull(message = "O papel é obrigatório")
     private WalletRole role;
+
+    public void setEmail(String email) {
+        this.email = (email == null) ? null : email.trim().toLowerCase();
+    }
 }
