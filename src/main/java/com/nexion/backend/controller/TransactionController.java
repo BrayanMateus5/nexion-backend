@@ -37,7 +37,7 @@ public class TransactionController {
 
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> listar(@PathVariable Long walletId) {
-        return ResponseEntity.ok(service.listarPorCateira(walletId));
+        return ResponseEntity.ok(service.listarPorCarteira(walletId));
     }
 
     @GetMapping("/{id}")

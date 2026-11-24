@@ -13,7 +13,6 @@ import com.nexion.backend.entity.Wallet;
 import com.nexion.backend.exception.ResourceNotFoundException;
 import com.nexion.backend.repository.CategoryRepository;
 import com.nexion.backend.repository.TransactionRepository;
-import com.nexion.backend.repository.WalletMemberRepository;
 import com.nexion.backend.repository.WalletRepository;
 
 @Service
@@ -24,15 +23,17 @@ public class TransactionService {
     private final CategoryRepository categoryRepository;
     private final UserLogService userLogService;
     private final WalletAccessService walletAccessService;
+    private final NotificacaoService notificacaoService;
 
     public TransactionService(TransactionRepository repository, WalletRepository walletRepository,
             CategoryRepository categoryRepository, UserLogService userLogService,
-            WalletAccessService walletAccessService) {
+            WalletAccessService walletAccessService, NotificacaoService notificacaoService) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.categoryRepository = categoryRepository;
         this.userLogService = userLogService;
         this.walletAccessService = walletAccessService;
+        this.notificacaoService = notificacaoService;
     }
 
     public TransactionResponse criar(Long walletId, TransactionRequest request) {
@@ -50,10 +51,12 @@ public class TransactionService {
         transaction.setDate(request.getDate());
         aplicarCategoria(transaction, request.getCategoryId());
 
-        return toResponse(repository.save(transaction));
+        Transaction salva = repository.save(transaction);
+        notificacaoService.notificar(walletId);
+        return toResponse(salva);
     }
 
-    public List<TransactionResponse> listarPorCateira(Long walletId) {
+    public List<TransactionResponse> listarPorCarteira(Long walletId) {
         walletAccessService.verificarMembro(walletId);
         return repository.findByWalletId(walletId).stream().map(this::toResponse).toList();
     }
@@ -72,13 +75,17 @@ public class TransactionService {
         transaction.setDescription(request.getDescription());
         transaction.setDate(request.getDate());
         aplicarCategoria(transaction, request.getCategoryId());
-        return toResponse(repository.save(transaction));
+        Transaction salva = repository.save(transaction);
+        notificacaoService.notificar(transaction.getWallet().getId());
+        return toResponse(salva);
     }
 
     public void remover(Long id) {
         Transaction transaction = buscarEntidade(id);
         walletAccessService.verificarMembro(transaction.getWallet().getId());
+        Long walletId = transaction.getWallet().getId();
         repository.delete(transaction);
+        notificacaoService.notificar(walletId);
     }
 
     private void aplicarCategoria(Transaction transaction, Long categoryId) {
